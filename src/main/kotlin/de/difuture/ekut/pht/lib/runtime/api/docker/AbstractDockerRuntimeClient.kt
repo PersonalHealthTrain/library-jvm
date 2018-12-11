@@ -1,15 +1,16 @@
-package de.difuture.ekut.pht.lib.runtime.impl
+package de.difuture.ekut.pht.lib.runtime.api.docker
 
-import com.spotify.docker.client.DefaultDockerClient
 import com.spotify.docker.client.DockerClient
 import com.spotify.docker.client.exceptions.ContainerNotFoundException
 import com.spotify.docker.client.exceptions.DockerException
 import com.spotify.docker.client.exceptions.ImageNotFoundException
-import com.spotify.docker.client.messages.ContainerConfig
 import com.spotify.docker.client.messages.RegistryAuth
-import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerCommitOptionalParameters
+import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerContainerCreation
 import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerRunOptionalParameters
-import kotlinext.map.asKeyValueList
+import dockerdaemon.data.DockerContainerId
+import dockerdaemon.data.DockerContainerOutput
+import dockerdaemon.data.DockerImageId
+import java.io.InputStream
 import java.lang.IllegalArgumentException
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
 import jdregistry.client.data.Tag as DockerTag
@@ -27,19 +28,18 @@ import java.nio.file.Path
  * @since 0.0.1
  *
  */
-class SpotifyDockerClient : DockerRuntimeClient {
+abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
 
-    private val baseClient = DefaultDockerClient.fromEnv().build()
     private var closed = false
     private var auth: RegistryAuth? = null
 
-    override fun commitByRebase(
+    fun commitByRebase(
         containerId: DockerContainerId,
         exportFiles: List<Path>,
-        from: String,
+        fromRepo: DockerRepositoryName,
+        fromTag: DockerTag,
         targetRepo: DockerRepositoryName,
-        targetTag: DockerTag,
-        optionalParams: DockerCommitOptionalParameters?
+        targetTag: DockerTag
     ): DockerImageId = unlessClosed {
 
         // Guard: check that all paths in the input are absolute
@@ -48,90 +48,78 @@ class SpotifyDockerClient : DockerRuntimeClient {
         }
 
         // 1. First, create a new container from the baseImage in which the files should be copied into
-        val targetContainerId = ContainerConfig.builder().image(from).build().let { config ->
-            baseClient.createContainer(config).id()
-                    ?: throw DockerRuntimeClientException("Creation of Docker Container failed!")
-        }
+        val targetContainerId = createContainer(repoTagToImageId(fromRepo.resolve(fromTag))).containerId
 
         // 2. Copy all the files from the source container into the target container
         for (path in exportFiles) {
 
-            val file = path.toFile()
-
-            baseClient.archiveContainer(containerId.repr, file.absolutePath).use { inputStream ->
-                baseClient.copyToContainer(inputStream, targetContainerId, file.parentFile.absolutePath)
+            copyFileFromContainer(containerId, path).use { inputStream ->
+                copyFileToContainer(inputStream, targetContainerId, path)
             }
         }
 
         // 3. Create the new image from the container
-        baseClient.commitContainer(
-                containerId.repr,
-                targetRepo.repr,
-                targetTag.repr,
-                ContainerConfig.builder().build(),
-                optionalParams?.comment,
-                optionalParams?.author)
+        commitContainer(
+                containerId,
+                targetRepo,
+                targetTag)
 
         // 4 Remove the created container
-        baseClient.stopContainer(targetContainerId, 20)
-        baseClient.removeContainer(targetContainerId)
-
-        // 5 Also remove the source Container
-        baseClient.removeContainer(containerId.repr)
-
+        stopAndRemoveContainer(targetContainerId)
+        stopAndRemoveContainer(containerId)
         this.repoTagToImageId(targetRepo.resolve(targetTag))
     }
 
-    override fun images() = unlessClosed {
-            baseClient.listImages().map { DockerImageId(it.id()) }
-    }
+//    override fun images() = unlessClosed {
+//            baseClient.listImages().map { DockerImageId(it.id()) }
+//    }
 
-    override fun pull(repo: DockerRepositoryName, tag: DockerTag, host: String?): DockerImageId = unlessClosed {
+//    override fun pull(repo: DockerRepositoryName, tag: DockerTag, host: String?): DockerImageId = unlessClosed {
+//
+//        // The Spotify Docker Client only understands the ':' syntax for images and tags
+//        val repoTag = repo.resolve(tag, host)
+//        val auth = this.auth
+//        try {
+//            with(baseClient) {
+//                if (auth != null) {
+//                    pull(repoTag, auth)
+//                } else {
+//                    pull(repoTag)
+//                }
+//            }
+//            this.repoTagToImageId(repoTag)
+//        } catch (ex: ImageNotFoundException) {
+//            throw NoSuchDockerImageException(ex, repo = repoTag)
+//        }
+//    }
+//
+//    override fun push(repo: DockerRepositoryName, tag: DockerTag, host: String?) = unlessClosed {
+//
+//        val repoTag = repo.resolve(tag, host)
+//        val auth = this.auth
+//        try {
+//            with(baseClient) {
+//                if (auth != null) {
+//                    push(repoTag, auth)
+//                } else {
+//                    push(repoTag)
+//                }
+//            }
+//        } catch (ex: ImageNotFoundException) {
+//            throw NoSuchDockerImageException(ex, repoTag)
+//        }
+//    }
 
-        // The Spotify Docker Client only understands the ':' syntax for images and tags
-        val repoTag = repo.resolve(tag, host)
-        val auth = this.auth
-        try {
-            with(baseClient) {
-                if (auth != null) {
-                    pull(repoTag, auth)
-                } else {
-                    pull(repoTag)
-                }
-            }
-            this.repoTagToImageId(repoTag)
-        } catch (ex: ImageNotFoundException) {
-            throw NoSuchDockerImageException(ex, repo = repoTag)
-        }
-    }
-
-    override fun push(repo: DockerRepositoryName, tag: DockerTag, host: String?) = unlessClosed {
-
-        val repoTag = repo.resolve(tag, host)
-        val auth = this.auth
-        try {
-            with(baseClient) {
-                if (auth != null) {
-                    push(repoTag, auth)
-                } else {
-                    push(repoTag)
-                }
-            }
-        } catch (ex: ImageNotFoundException) {
-            throw NoSuchDockerImageException(ex, repoTag)
-        }
-    }
-
-    override fun login(username: String, password: String, host: String?): Boolean = unlessClosed {
-
-        val builder = RegistryAuth.builder().username(username).password(password)
-        val auth = (host?.let { builder.serverAddress(it) } ?: builder).build()
-
-        return if (baseClient.auth(auth) == 200) {
-            this.auth = auth
-            true
-        } else false
-    }
+//    override fun login(username: String, password: String, host: String?): Boolean = unlessClosed {
+//
+//        val builder = RegistryAuth.builder().username(username).password(password)
+//        val auth = (host?.let { builder.serverAddress(it) } ?: builder).build()
+//
+//        return if (baseClient.auth(auth) == 200) {
+//            this.auth = auth
+//            true
+//        } else false
+//    }
 
     override fun run(
         imageId: DockerImageId,
@@ -140,41 +128,14 @@ class SpotifyDockerClient : DockerRuntimeClient {
         optionalParams: DockerRunOptionalParameters?
     ): DockerContainerOutput = unlessClosed {
 
-        //  Map the environment map to the list format required by the Spotify Docker Client
-        val envList = optionalParams?.env?.asKeyValueList().orEmpty()
-
-        // Configuration for the Container Creation, currently only takes the Image Id
-        val config = ContainerConfig.builder()
-                .image(imageId.repr)
-                .cmd(commands)
-                .env(envList)
-                .build()
-
         try {
-            val warnings = mutableListOf<String>()
             // We rethrow ImageNotFound and DockerClient exceptions, but let Interrupted Exceptions pass throw
             // TODO Platform type. Can this be null? This would not be documented by the method
-            val creation = baseClient.createContainer(config)
-
-            // Collect warnings to warnings list if present and if we are interested in warnings
-            creation.warnings()?.let { warnings.addAll(it) }
-
-            // Fetch the Container ID
-            val containerId = creation.id()
-                    ?: throw CreateDockerContainerFailedException("Spotify Docker Client did not make the Docker Container ID available!")
-
-            // We also need to container ID as proper object
-            val containerIdObj = DockerContainerId(containerId)
-
-            // Attach the container to a network, if this is requested
-            val network = optionalParams?.network
-            if (network != null) {
-
-                baseClient.connectToNetwork(containerId, network)
-            }
+            // TODO Network
+            val containerId = createContainer(imageId, commands, optionalParams?.env).containerId
 
             // Now start the container
-            baseClient.startContainer(containerId)
+            startContainer(containerId)
 
             // The Interrupt needs to be handled after the container has been started
             val interruptSignaler = optionalParams?.interruptSignaler
@@ -223,15 +184,15 @@ class SpotifyDockerClient : DockerRuntimeClient {
         // TODO Cleanup
     }
 
-    override fun tag(
-        imageId: DockerImageId,
-        targetRepo: DockerRepositoryName,
-        targetTag: DockerTag,
-        host: String?
-    ) = unlessClosed {
-
-            this.baseClient.tag(imageId.repr, targetRepo.resolve(targetTag, host))
-    }
+//    override fun tag(
+//        imageId: DockerImageId,
+//        targetRepo: DockerRepositoryName,
+//        targetTag: DockerTag,
+//        host: String?
+//    ) = unlessClosed {
+//
+//            this.baseClient.tag(imageId.repr, targetRepo.resolve(targetTag, host))
+//    }
 
     /**
      * Translates the repoTag string to the corresponding unique Image ID
@@ -261,4 +222,54 @@ class SpotifyDockerClient : DockerRuntimeClient {
             throw DockerRuntimeClientException(ex)
         }
     }
+
+    // Abstract members // TODO Which belong to the runtime API
+
+    abstract fun createContainer(
+        imageId: DockerImageId,
+        commands: List<String>? = null,
+        env: Map<String, String>? = null,
+        network: DockerNetworkReference? = null): DockerContainerCreation
+
+    abstract fun startContainer(containerId: DockerContainerId)
+
+    abstract fun copyFileFromContainer(containerId: DockerContainerId, path: Path): InputStream
+
+    abstract fun copyFileToContainer(input: InputStream, containerId: DockerContainerId, path: Path)
+
+    abstract fun commitContainer(containerId: DockerContainerId, targetRepo: DockerRepositoryName, targetTag: DockerTag)
+
+    abstract fun stopAndRemoveContainer(containerId: DockerContainerId)
+
+    /**
+     * Lists the [DockerImageId] that this [DockerRuntimeClient] has access to.
+     *
+     * Resembles the `data images -q` command.
+     *
+     * *Contract:* The method should fail by throwing an exception if something prevents listing the available
+     * images.
+     *
+     * @return The list of [DockerImageId] that this [DockerRuntimeClient] has access to.
+     *
+     */
+    abstract fun listImages(): List<DockerImageId>
+
+    abstract fun pullImage(repo: DockerRepositoryName, tag: DockerTag, host: String? = null): DockerImageId
+
+    abstract fun pushImage(repo: DockerRepositoryName, tag: DockerTag, host: String? = null)
+
+    abstract fun connectToNetwork(containerId: DockerContainerId, network: DockerNetworkReference)
+
+    abstract fun waitForContainer(containerId: DockerContainerId)
+
+    /**
+     * Logs the Docker Client in to the remote host using the provided `username` and `password`.
+     *
+     * @param username The username that is used for login
+     * @param password Password for login.
+     * @param host The host for login. If omitted, the implementor is expected to fall back to Docker Hub.
+     * @return Whether login has succeeded.
+     *
+     */
+    abstract fun login(username: String, password: String, host: String? = null): Boolean
 }

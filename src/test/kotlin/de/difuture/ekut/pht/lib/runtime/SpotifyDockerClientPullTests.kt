@@ -1,7 +1,7 @@
 package de.difuture.ekut.pht.lib.runtime
 
 import de.difuture.ekut.pht.lib.runtime.api.docker.DockerRuntimeClient
-import de.difuture.ekut.pht.lib.runtime.impl.SpotifyDockerClient
+import de.difuture.ekut.pht.lib.runtime.api.docker.AbstractDockerRuntimeClient
 import jdregistry.client.data.RepositoryName
 import jdregistry.client.data.Tag as DockerTag
 import org.junit.Assert
@@ -15,7 +15,7 @@ class SpotifyDockerClientPullTests {
     @Before
     fun before() {
 
-        this.client = SpotifyDockerClient()
+        this.client = AbstractDockerRuntimeClient()
     }
 
     // Tests pull several image and ensure that the image id can be listed

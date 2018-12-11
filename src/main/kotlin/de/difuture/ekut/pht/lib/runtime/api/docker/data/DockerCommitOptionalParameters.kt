@@ -1,4 +1,4 @@
-package de.difuture.ekut.pht.lib.runtime.api.docker.params
+package de.difuture.ekut.pht.lib.runtime.api.docker.data
 
 /**
  * Optional Parameters for Docker Commit

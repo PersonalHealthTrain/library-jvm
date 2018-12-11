@@ -1,9 +1,7 @@
 package de.difuture.ekut.pht.lib.runtime.api.docker
 
-import de.difuture.ekut.pht.lib.data.DockerContainerId
-import de.difuture.ekut.pht.lib.data.DockerImageId
-import de.difuture.ekut.pht.lib.runtime.api.docker.params.DockerCommitOptionalParameters
-import de.difuture.ekut.pht.lib.runtime.api.docker.params.DockerRunOptionalParameters
+import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerCommitOptionalParameters
+import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerRunOptionalParameters
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
 import jdregistry.client.data.Tag as DockerTag
 import java.nio.file.Path

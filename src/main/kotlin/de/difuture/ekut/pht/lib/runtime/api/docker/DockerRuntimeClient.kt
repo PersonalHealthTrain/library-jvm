@@ -1,12 +1,8 @@
 package de.difuture.ekut.pht.lib.runtime.api.docker
 
-import de.difuture.ekut.pht.lib.data.DockerContainerId
-import de.difuture.ekut.pht.lib.data.DockerContainerOutput
-import de.difuture.ekut.pht.lib.data.DockerImageId
 import de.difuture.ekut.pht.lib.data.DockerNetworkId
 import de.difuture.ekut.pht.lib.runtime.api.RuntimeClient
-import de.difuture.ekut.pht.lib.runtime.api.docker.params.DockerCommitOptionalParameters
-import de.difuture.ekut.pht.lib.runtime.api.docker.params.DockerRunOptionalParameters
+import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerRunOptionalParameters
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
 import jdregistry.client.data.Tag as DockerTag
 import java.nio.file.Path
@@ -125,22 +121,8 @@ interface DockerRuntimeClient : RuntimeClient {
         exportFiles: List<Path>,
         from: String,
         targetRepo: DockerRepositoryName,
-        targetTag: DockerTag,
-        optionalParams: DockerCommitOptionalParameters? = null
+        targetTag: DockerTag
     ): DockerImageId
-
-    /**
-     * Lists the [DockerImageId] that this [DockerRuntimeClient] has access to.
-     *
-     * Resembles the `data images -q` command.
-     *
-     * *Contract:* The method should fail by throwing an exception if something prevents listing the available
-     * images.
-     *
-     * @return The list of [DockerImageId] that this [DockerRuntimeClient] has access to.
-     *
-     */
-    fun images(): List<DockerImageId>
 
     /**
      * Tag as a repository with another repository name
@@ -162,15 +144,4 @@ interface DockerRuntimeClient : RuntimeClient {
         targetTag: DockerTag,
         host: String? = null
     )
-
-    /**
-     * Logs the Docker Client in to the remote host using the provided `username` and `password`.
-     *
-     * @param username The username that is used for login
-     * @param password Password for login.
-     * @param host The host for login. If omitted, the implementor is expected to fall back to Docker Hub.
-     * @return Whether login has succeeded.
-     *
-     */
-    fun login(username: String, password: String, host: String? = null): Boolean
 }

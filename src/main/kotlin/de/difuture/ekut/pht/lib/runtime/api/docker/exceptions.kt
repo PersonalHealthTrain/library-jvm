@@ -1,7 +1,5 @@
 package de.difuture.ekut.pht.lib.runtime.api.docker
 
-import de.difuture.ekut.pht.lib.data.DockerContainerId
-import de.difuture.ekut.pht.lib.data.DockerImageId
 import de.difuture.ekut.pht.lib.data.DockerNetworkId
 
 /**

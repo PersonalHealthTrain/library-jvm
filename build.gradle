@@ -35,6 +35,9 @@ dependencies {
     implementation group: 'kotlinext', name: 'string', version: '3.0'
     implementation group: 'kotlinext', name: 'map', version: '1.0'
 
+    // The Data classes for the Docker Daemon
+    implementation group: 'dockerdaemon', name: 'data', version: '1.0'
+
     // Docker Registry Data classes
     implementation "jdregistry.client:data:0.0.7"
 

@@ -1,6 +1,5 @@
-package de.difuture.ekut.pht.lib.runtime.api.docker.params
+package de.difuture.ekut.pht.lib.runtime.api.docker.data
 
-import de.difuture.ekut.pht.lib.data.DockerContainerId
 import de.difuture.ekut.pht.lib.runtime.api.interrupt.InterruptHandler
 import de.difuture.ekut.pht.lib.runtime.api.interrupt.InterruptSignaler
 
