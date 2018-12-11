@@ -1,5 +1,7 @@
 package de.difuture.ekut.pht.lib.runtime.api.docker.data
 
+import dockerdaemon.data.DockerContainerId
+
 /**
  * Represents the creation of a Docker container
  *

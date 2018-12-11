@@ -2,6 +2,7 @@ package de.difuture.ekut.pht.lib.runtime.api.docker.data
 
 import de.difuture.ekut.pht.lib.runtime.api.interrupt.InterruptHandler
 import de.difuture.ekut.pht.lib.runtime.api.interrupt.InterruptSignaler
+import dockerdaemon.data.DockerContainerId
 
 /**
  * Represents the optional parameters that can be passed to Docker run.

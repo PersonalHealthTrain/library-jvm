@@ -1,6 +1,8 @@
 package de.difuture.ekut.pht.lib.runtime.api.docker
 
-import de.difuture.ekut.pht.lib.data.DockerNetworkId
+import dockerdaemon.data.DockerContainerId
+import dockerdaemon.data.DockerImageId
+import dockerdaemon.data.DockerNetworkReference
 
 /**
  * Exception intended to be thrown by [DockerRuntimeClient] implementations.
@@ -75,9 +77,9 @@ data class NoSuchDockerRepositoryException(val msg: String?) : DockerRuntimeClie
  * @since 0.0.1
  *
  */
-data class NoSuchDockerNetworkException(val msg: String?, val networkId: DockerNetworkId) : DockerRuntimeClientException(msg) {
+data class NoSuchDockerNetworkException(val msg: String?, val network: DockerNetworkReference) : DockerRuntimeClientException(msg) {
 
-    constructor(ex: Exception, networkId: DockerNetworkId) : this(ex.message, networkId)
+    constructor(ex: Exception, networkId: DockerNetworkReference) : this(ex.message, networkId)
 }
 
 /**

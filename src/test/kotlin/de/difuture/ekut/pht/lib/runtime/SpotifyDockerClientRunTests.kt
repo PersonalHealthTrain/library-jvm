@@ -2,8 +2,9 @@ package de.difuture.ekut.pht.lib.runtime
 
 import com.spotify.docker.client.DefaultDockerClient
 import de.difuture.ekut.pht.lib.runtime.api.docker.DockerRuntimeClient
-import de.difuture.ekut.pht.lib.runtime.api.docker.AbstractDockerRuntimeClient
+import de.difuture.ekut.pht.lib.runtime.impl.SpotifyDockerClient
 import jdregistry.client.data.RepositoryName
+import org.junit.After
 import jdregistry.client.data.Tag as DockerTag
 import org.junit.Before
 import org.junit.Test
@@ -22,12 +23,16 @@ class SpotifyDockerClientRunTests {
 
     @Before
     fun before() {
-        this.client = AbstractDockerRuntimeClient()
+        this.client = SpotifyDockerClient()
+    }
+
+    @After
+    fun after() {
+        this.client.close()
     }
 
     @Test
     fun run_alpine() {
-
         val image = this.client.pull(RepositoryName.from("alpine"), DockerTag.LATEST)
         this.client.run(image, emptyList(), true)
     }

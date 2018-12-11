@@ -12,6 +12,6 @@ import org.junit.runners.Suite
  * @
  *
  */
-@Suite.SuiteClasses(SpotifyDockerClientPullTests::class, SpotifyDockerClientRunTests::class)
+@Suite.SuiteClasses(SpotifyDockerClientRunTests::class)
 @RunWith(Suite::class)
 class PullRunSuite

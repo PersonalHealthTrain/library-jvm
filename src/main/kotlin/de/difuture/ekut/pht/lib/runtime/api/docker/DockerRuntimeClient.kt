@@ -1,8 +1,10 @@
 package de.difuture.ekut.pht.lib.runtime.api.docker
 
-import de.difuture.ekut.pht.lib.data.DockerNetworkId
 import de.difuture.ekut.pht.lib.runtime.api.RuntimeClient
 import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerRunOptionalParameters
+import dockerdaemon.data.DockerContainerId
+import dockerdaemon.data.DockerContainerOutput
+import dockerdaemon.data.DockerImageId
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
 import jdregistry.client.data.Tag as DockerTag
 import java.nio.file.Path
@@ -119,7 +121,8 @@ interface DockerRuntimeClient : RuntimeClient {
     fun commitByRebase(
         containerId: DockerContainerId,
         exportFiles: List<Path>,
-        from: String,
+        fromRepo: DockerRepositoryName,
+        fromTag: DockerTag,
         targetRepo: DockerRepositoryName,
         targetTag: DockerTag
     ): DockerImageId
