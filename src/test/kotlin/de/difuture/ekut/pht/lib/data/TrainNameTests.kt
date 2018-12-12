@@ -30,7 +30,7 @@ class TrainNameTests {
     fun `repr of TrainName is same as repr with quotes`() {
         with(jacksonObjectMapper()) {
             validTrainNames.forEach {
-                assertEquals(writeValueAsString(it), TrainName.from(it).repr.quoted())
+                assertEquals(writeValueAsString(it), it.toTrainName().repr.quoted())
             }
         }
     }
@@ -38,7 +38,7 @@ class TrainNameTests {
     @Test
     fun `illegal Strings cannot be turned into Train Names`() {
             illegalTrainNames.forEach {
-                assertFailsWith<IllegalArgumentException> { TrainName.from(it) }
+                assertFailsWith<IllegalArgumentException> { it.toTrainName() }
             }
         }
 }

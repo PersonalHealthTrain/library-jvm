@@ -4,7 +4,6 @@ import com.spotify.docker.client.DefaultDockerClient
 import com.spotify.docker.client.DockerClient
 import com.spotify.docker.client.messages.ContainerConfig
 import com.spotify.docker.client.messages.RegistryAuth
-import de.difuture.ekut.pht.lib.runtime.api.docker.AbstractDockerRuntimeClient
 import de.difuture.ekut.pht.lib.runtime.api.docker.CreateDockerContainerFailedException
 import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerContainerCreation
 import dockerdaemon.data.DockerContainerId
@@ -60,12 +59,10 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
         return DockerContainerCreation(containerId, creation.warnings().orEmpty())
     }
 
-    override fun repoToImageId(
-        repoName: DockerRepositoryName,
-        tag: DockerTag
+    override fun repoTagToImageId(
+        repoTag: String
     ): DockerImageId {
 
-        val repoTag = repoName.resolve(tag)
         val images = baseClient.listImages().filter {
 
             val repoTags = it.repoTags()
@@ -123,7 +120,7 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
         host: String?
     ): DockerImageId {
         baseClient.pull(repo.resolve(tag, host))
-        return this.repoToImageId(repo, tag)
+        return this.repoTagToImageId(repo.resolve(tag))
     }
 
     override fun push(repo: DockerRepositoryName, tag: DockerTag, host: String?) {

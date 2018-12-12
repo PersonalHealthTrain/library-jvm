@@ -1,5 +1,6 @@
-package de.difuture.ekut.pht.lib.runtime.api.docker
+package de.difuture.ekut.pht.lib.runtime.impl
 
+import de.difuture.ekut.pht.lib.runtime.api.docker.DockerRuntimeClient
 import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerContainerCreation
 import de.difuture.ekut.pht.lib.runtime.api.docker.data.DockerRunOptionalParameters
 import dockerdaemon.data.DockerContainerId
@@ -31,8 +32,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
     final override fun commitByRebase(
         containerId: DockerContainerId,
         exportFiles: List<Path>,
-        fromRepo: DockerRepositoryName,
-        fromTag: DockerTag,
+        from: String,
         targetRepo: DockerRepositoryName,
         targetTag: DockerTag
     ): DockerImageId {
@@ -47,7 +47,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         }
 
         // 1. First, create a new container from the baseImage in which the files should be copied into
-        val targetContainerId = createContainer(repoToImageId(fromRepo, fromTag)).containerId
+        val targetContainerId = createContainer(repoTagToImageId(from)).containerId
 
         // 2. Copy all the files from the source container into the target container
         for (path in exportFiles) {
@@ -66,7 +66,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         // 4 Remove the created container
         stopAndRemoveContainer(targetContainerId)
         stopAndRemoveContainer(containerId)
-        return this.repoToImageId(targetRepo, targetTag)
+        return this.repoTagToImageId(targetRepo.resolve(targetTag))
     }
 
     override fun run(
@@ -130,7 +130,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         network: DockerNetworkReference? = null
     ): DockerContainerCreation
 
-    abstract fun repoToImageId(repoName: DockerRepositoryName, tag: DockerTag): DockerImageId
+    abstract fun repoTagToImageId(repoTag: String): DockerImageId
 
     abstract fun startContainer(containerId: DockerContainerId)
 

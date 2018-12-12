@@ -6,7 +6,12 @@ import de.difuture.ekut.pht.lib.internal.TrainNameDeserializer
 import de.difuture.ekut.pht.lib.internal.TrainNameSerializer
 
 /**
- * Represents the Name of a train.
+ * Represents the name of a Train.
+ *
+ * For a given repository name /segment1/segment2/../segmentn,
+ * the train name corresponds to segmentn, which has to start with
+ * train_. The train name is identical between train yard and train registy if
+ * a train has been instantiated from the train yard.
  *
  * @author Lukas Zimmermann
  * @since 0.0.1
@@ -19,17 +24,15 @@ interface TrainName {
      * The [String] representation of the Train Name
      */
     val repr: String
+}
 
-    private data class GenericTrainName(override val repr: String) : TrainName
-
-    companion object {
-        fun from(input: String): TrainName {
-            require(input.matches(regex))
-            return GenericTrainName(input)
-        }
-
-        // The regex that we allow for potential values from the train name
-        // A train needs to start with the train_ prefix
-        private val regex = Regex("train_[a-zA-Z](?:[a-zA-Z0-9_-]*[a-z0-9])?")
+fun String.toTrainName(): TrainName {
+    require(isValidTrainName())
+    return object : TrainName {
+        override val repr = this@toTrainName
     }
 }
+
+fun String.isValidTrainName(): Boolean = matches(regex)
+
+private val regex = Regex("train_[a-zA-Z](?:[a-zA-Z0-9_-]*[a-z0-9])?")

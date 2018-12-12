@@ -107,7 +107,6 @@ interface DockerRuntimeClient : RuntimeClient {
      * @param from The baseImage from which the new image should be created from
      * @param targetRepo The [DockerRepositoryName] of the newly generated image
      * @param targetTag The [DockerTag] of the newly generate Image
-     * @param optionalParams Optional Parameters that can be supplied to docker commit
      * @return The [DockerImageId] of the newly generated image
      *
      * @throws IllegalArgumentException if at least one of the files in the exportFiles argument is not
@@ -121,8 +120,7 @@ interface DockerRuntimeClient : RuntimeClient {
     fun commitByRebase(
         containerId: DockerContainerId,
         exportFiles: List<Path>,
-        fromRepo: DockerRepositoryName,
-        fromTag: DockerTag,
+        from: String,
         targetRepo: DockerRepositoryName,
         targetTag: DockerTag
     ): DockerImageId

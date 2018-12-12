@@ -5,15 +5,15 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.TextNode
-import de.difuture.ekut.pht.lib.data.TrainName
-import de.difuture.ekut.pht.lib.data.toTrainName
+import de.difuture.ekut.pht.lib.train.api.TrainCommand
+import de.difuture.ekut.pht.lib.train.api.trainCommand
 import java.io.IOException
 
-internal class TrainNameDeserializer @JvmOverloads constructor(vc: Class<*>? = null) : StdDeserializer<TrainName>(vc) {
+internal class TrainCommandDeserializer @JvmOverloads constructor(vc: Class<*>? = null) : StdDeserializer<TrainCommand>(vc) {
 
     @Throws(IOException::class, JsonProcessingException::class)
-    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): TrainName {
+    override fun deserialize(jp: JsonParser, ctxt: DeserializationContext): TrainCommand {
         val node = jp.codec.readTree<TextNode>(jp)
-        return node.asText().toTrainName()
+        return trainCommand(node.asText())
     }
 }

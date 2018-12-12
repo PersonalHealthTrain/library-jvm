@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'de.difuture.ekut.pht'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 repositories {
     jcenter()
@@ -32,7 +32,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.7'
 
     // Extension functions for Kotlin stdlib classes
-    implementation group: 'kotlinext', name: 'string', version: '3.0'
+    implementation group: 'kotlinext', name: 'string', version: '4.0'
     implementation group: 'kotlinext', name: 'map', version: '1.0'
 
     // The Data classes for the Docker Daemon
@@ -40,9 +40,13 @@ dependencies {
 
     // Docker Registry Data classes
     implementation "jdregistry.client:data:0.0.7"
+    implementation group: 'jdregistry.client', name: 'api', version: '0.0.9'
 
     // Docker Client from Spotify
     implementation 'com.spotify:docker-client:8.14.5'
+
+    // Such that we can provide bindings for hibernate
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '5.3.7.Final'
 
     // Use the Kotlin test library
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
@@ -92,7 +96,7 @@ publishing {
 
 model {
     tasks.generatePomFileForMavenPublication {
-        destination = file("$buildDir/libs/lib-1.0-SNAPSHOT.pom")
+        destination = file("$buildDir/libs/lib-1.0.pom")
     }
 }
 
