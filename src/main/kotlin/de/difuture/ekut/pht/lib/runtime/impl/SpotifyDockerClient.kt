@@ -119,12 +119,22 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
         tag: jdregistry.client.data.Tag,
         host: String?
     ): DockerImageId {
-        baseClient.pull(repo.resolve(tag, host))
+        val repoTag = repo.resolve(tag, host)
+        if (auth != null) {
+            baseClient.pull(repoTag, auth)
+        } else {
+            baseClient.pull(repoTag)
+        }
         return this.repoTagToImageId(repo.resolve(tag))
     }
 
     override fun push(repo: DockerRepositoryName, tag: DockerTag, host: String?) {
-        baseClient.push(repo.resolve(tag))
+        val repoTag = repo.resolve(tag, host)
+        if (auth != null) {
+            baseClient.push(repoTag, auth)
+        } else {
+            baseClient.push(repoTag)
+        }
     }
 
     override fun tag(
@@ -134,6 +144,15 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
         host: String?
     ) {
         baseClient.tag(imageId.repr, targetRepo.resolve(targetTag, host))
+    }
+
+    override fun login(username: String, password: String, host: String?): Boolean {
+        val builder = RegistryAuth.builder().username(username).password(password)
+        val auth = (host?.let { builder.serverAddress(it) } ?: builder).build()
+        return if (baseClient.auth(auth) == 200) {
+            this.auth = auth
+            true
+        } else false
     }
 
     override fun close() {

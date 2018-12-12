@@ -145,4 +145,10 @@ interface DockerRuntimeClient : RuntimeClient {
         targetTag: DockerTag,
         host: String? = null
     )
+
+    /**
+     * Logs this Docker Client in with username and password
+     *
+     */
+    fun login(username: String, password: String, host: String? = null): Boolean
 }

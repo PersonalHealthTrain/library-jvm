@@ -80,47 +80,44 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
             throw IllegalStateException("Docker client has been closed")
         }
 
-            // We rethrow ImageNotFound and DockerClient exceptions, but let Interrupted Exceptions pass throw
-            // TODO Platform type. Can this be null? This would not be documented by the method
-            // TODO Network
-            val creation = createContainer(imageId, commands, optionalParams?.env)
-            val containerId = createContainer(imageId, commands, optionalParams?.env).containerId
+        // We rethrow ImageNotFound and DockerClient exceptions, but let Interrupted Exceptions pass throw
+        // TODO Platform type. Can this be null? This would not be documented by the method
+        // TODO Network
+        val creation = createContainer(imageId, commands, optionalParams?.env)
+        val containerId = creation.containerId
 
-            // Now start the container
-            startContainer(containerId)
+        // Now start the container
+        startContainer(containerId)
 
-            // The Interrupt needs to be handled after the container has been started
-            val interruptSignaler = optionalParams?.interruptSignaler
-            val interruptHandler = optionalParams?.interruptHandler
+        // The Interrupt needs to be handled after the container has been started
+        val interruptSignaler = optionalParams?.interruptSignaler
+        val interruptHandler = optionalParams?.interruptHandler
 
-            if (interruptSignaler != null && interruptHandler != null) {
-
-                while (isRunning(containerId)) {
-
-                    if (interruptSignaler.wasInterrupted(containerId)) {
-
-                        interruptHandler.handleInterrupt(containerId)
-                    }
+        if (interruptSignaler != null && interruptHandler != null) {
+            while (isRunning(containerId)) {
+                if (interruptSignaler.wasInterrupted(containerId)) {
+                    interruptHandler.handleInterrupt(containerId)
                 }
             }
-            // Now fetch the container exit
-            val exit = waitForContainer(containerId)
+        }
+        // Now fetch the container exit
+        val exit = waitForContainer(containerId)
 
-            // Stdout and Stderr need to be read before the container is gonna be removed
-            val stdout = getStdout(containerId)
-            val stderr = getStderr(containerId)
+        // Stdout and Stderr need to be read before the container is gonna be removed
+        val stdout = getStdout(containerId)
+        val stderr = getStderr(containerId)
 
-            // Remove the container if this was requested
-            if (rm) {
-                stopAndRemoveContainer(containerId)
-            }
+        // Remove the container if this was requested
+        if (rm) {
+            stopAndRemoveContainer(containerId)
+        }
 
-            return DockerContainerOutput(
-                    containerId,
-                    exit,
-                    stdout,
-                    stderr,
-                    creation.warnings)
+        return DockerContainerOutput(
+            containerId,
+            exit,
+            stdout,
+            stderr,
+            creation.warnings)
     }
 
     abstract fun createContainer(
