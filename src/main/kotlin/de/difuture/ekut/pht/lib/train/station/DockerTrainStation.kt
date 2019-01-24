@@ -5,7 +5,7 @@ package de.difuture.ekut.pht.lib.train.station
 //class DockerTrainStation(
 //
 //    override val client: DockerRuntimeClient,
-//    override val stationInfo: StationInfo
+//    override val stationInfo: StationRuntimeInfo
 //) : TrainStation<DockerRuntimeClient>(client, stationInfo) {
 //
 //    fun departWithAlgorithm(arrival: DockerRegistryTrainArrival): DockerRegistryTrainDeparture {

@@ -1,0 +1,4 @@
+[submodule "src/test/resources/train-api-python"]
+	path = src/test/resources/train-api-python
+	url = https://github.com/PersonalHealthTrain/train-api-python
+	branch = master

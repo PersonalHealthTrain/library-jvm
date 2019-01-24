@@ -8,7 +8,7 @@ package de.difuture.ekut.pht.lib.train.api
  * @since 0.0.1
  *
  */
-data class StationInfo(
+data class StationRuntimeInfo(
 
     /**
      * The numeric station id. This means, a train knows at runtime at which station it is running at.
@@ -16,8 +16,18 @@ data class StationInfo(
     val stationId: Int,
 
     /**
-     * The mode in which the train was executed. This is currently unused and has no semantics, so the station
-     * can pass anything.
+     * Optional information on the track that the Train is currently running at
      */
-    val mode: String
-)
+    val trackInfo: String? = null,
+
+    /**
+     * Custom User Data for the Train
+     */
+    val userData: String? = null
+) {
+    init {
+        require(stationId > 0) {
+            "Station Id must be a positive integer!"
+        }
+    }
+}

@@ -31,7 +31,7 @@ interface ArrivalExecutor<A : TrainArrival, B : RuntimeClient, C : TrainOutput<D
      * @param info Additional Information that the payload needs to provide at runtime
      * @return The value that [TrainCommand] is supposed to return.
      */
-    fun execArrival(interf: A, client: B, info: StationInfo): C
+    fun execArrival(interf: A, client: B, info: StationRuntimeInfo): C
 }
 
 /**
@@ -52,5 +52,5 @@ interface DepartureExecutor<A : TrainDeparture<B>, B : RuntimeClient, C : TrainO
      * @param info Additional Information that the payload needs to provide at runtime
      * @return The value that [TrainCommand] is supposed to return.
      */
-    fun execDeparture(interf: A, info: StationInfo): C
+    fun execDeparture(interf: A, info: StationRuntimeInfo): C
 }

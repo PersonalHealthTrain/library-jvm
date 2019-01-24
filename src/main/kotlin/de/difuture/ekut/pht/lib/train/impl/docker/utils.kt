@@ -3,7 +3,7 @@ package de.difuture.ekut.pht.lib.train.impl.docker
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import de.difuture.ekut.pht.lib.runtime.api.docker.DockerRuntimeClient
-import de.difuture.ekut.pht.lib.train.api.StationInfo
+import de.difuture.ekut.pht.lib.train.api.StationRuntimeInfo
 import de.difuture.ekut.pht.lib.train.api.TrainCommand
 import de.difuture.ekut.pht.lib.train.api.TrainOutput
 import de.difuture.ekut.pht.lib.train.api.TrainResponse
@@ -35,7 +35,7 @@ private inline fun <reified T : TrainResponse> toTrainOutput(
 
 /**
  * Executes a [TrainCommand] on a [DockerRegistryTrainArrival] with the provided [DockerRuntimeClient] with the
- * given [StationInfo]
+ * given [StationRuntimeInfo]
  *
  * @param
  *
@@ -44,7 +44,7 @@ internal inline fun <reified T : TrainResponse> execute(
     command: TrainCommand,
     interf: DockerRegistryTrainArrival,
     client: DockerRuntimeClient,
-    info: StationInfo,
+    info: StationRuntimeInfo,
     rm: Boolean = true
 ): TrainOutput.DockerTrainOutput<T> {
 
@@ -65,7 +65,7 @@ internal inline fun <reified T : TrainResponse> execute(
 internal inline fun <reified T : TrainResponse> execute(
     command: TrainCommand,
     interf: DockerRegistryTrainDeparture,
-    info: StationInfo
+    info: StationRuntimeInfo
 ): TrainOutput.DockerTrainOutput<T> {
 
     // Generate the DockerContainerOutput by using the client on the departure interface

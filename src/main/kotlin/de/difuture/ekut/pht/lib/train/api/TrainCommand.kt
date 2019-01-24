@@ -11,7 +11,7 @@ import de.difuture.ekut.pht.lib.internal.TrainCommandSerializer
  * according to its API. If a train command is supposed to be enriched with
  * parameters, one might think about using sealed classes instead of an enum.
  *
- * A train command can be resolved with [StationInfo] to generate a list of commands
+ * A train command can be resolved with [StationRuntimeInfo] to generate a list of commands
  * that can be passed to the run command when starting a container from an image.
  *
  * @author Lukas Zimmermann
@@ -22,36 +22,36 @@ import de.difuture.ekut.pht.lib.internal.TrainCommandSerializer
 @JsonDeserialize(using = TrainCommandDeserializer::class)
 enum class TrainCommand(val repr: String) {
 
-    CHECK_REQUIREMENTS("check_requirements"),
-    LIST_REQUIREMENTS("list_requirements"),
-    PRINT_SUMMARY("print_summary"),
-    RUN_ALGORITHM("run_algorithm");
-
+    RUN("run"),
+    DESCRIBE("describe");
     /**
-     * Resolves the provided [StationInfo] on `this` [TrainCommand] to produce the list
+     * Resolves the provided [StationRuntimeInfo] on `this` [TrainCommand] to produce the list
      * of command line tokens
      *
-     * @param info The [StationInfo] needed to produce the command line tokens
+     * @param info The [StationRuntimeInfo] needed to produce the command line tokens
      * @return The list of command line tokens for `this` [TrainCommand]
      */
-        fun resolveWith(info: StationInfo) = listOf(
-            "--stationid", info.stationId.toString(),
-            "--mode", info.mode,
-            this.repr
+    fun resolveWith(info: StationRuntimeInfo): List<String> {
+        val base = mutableListOf(
+                "--station-id", info.stationId.toString()
         )
+        if (info.trackInfo != null) {
+            base.add("--track-info")
+            base.add(info.trackInfo)
+        }
+        if (info.userData != null) {
+            base.add("--user-data")
+            base.add(info.userData)
+        }
+        return base
+    }
 }
 
 fun trainCommand(from: String): TrainCommand = when (from) {
-    TrainCommand.CHECK_REQUIREMENTS.repr -> TrainCommand.CHECK_REQUIREMENTS
-    TrainCommand.CHECK_REQUIREMENTS.toString() -> TrainCommand.CHECK_REQUIREMENTS
+    TrainCommand.DESCRIBE.repr -> TrainCommand.DESCRIBE
+    TrainCommand.DESCRIBE.toString() -> TrainCommand.DESCRIBE
 
-    TrainCommand.LIST_REQUIREMENTS.repr -> TrainCommand.LIST_REQUIREMENTS
-    TrainCommand.LIST_REQUIREMENTS.toString() -> TrainCommand.LIST_REQUIREMENTS
-
-    TrainCommand.PRINT_SUMMARY.repr -> TrainCommand.PRINT_SUMMARY
-    TrainCommand.PRINT_SUMMARY.toString() -> TrainCommand.PRINT_SUMMARY
-
-    TrainCommand.RUN_ALGORITHM.repr -> TrainCommand.RUN_ALGORITHM
-    TrainCommand.RUN_ALGORITHM.toString() -> TrainCommand.RUN_ALGORITHM
+    TrainCommand.RUN.repr -> TrainCommand.RUN
+    TrainCommand.RUN.toString() -> TrainCommand.RUN
     else -> throw IllegalArgumentException("Not a Train Command: $from")
 }

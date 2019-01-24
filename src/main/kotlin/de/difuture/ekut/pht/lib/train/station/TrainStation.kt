@@ -2,7 +2,7 @@ package de.difuture.ekut.pht.lib.train.station
 
 import de.difuture.ekut.pht.lib.runtime.api.RuntimeClient
 import de.difuture.ekut.pht.lib.train.api.ArrivalExecutor
-import de.difuture.ekut.pht.lib.train.api.StationInfo
+import de.difuture.ekut.pht.lib.train.api.StationRuntimeInfo
 import de.difuture.ekut.pht.lib.train.api.TrainArrival
 import de.difuture.ekut.pht.lib.train.api.TrainResponse
 import de.difuture.ekut.pht.lib.train.api.TrainOutput
@@ -22,7 +22,7 @@ import de.difuture.ekut.pht.lib.train.api.DepartureExecutor
 open class TrainStation<T : RuntimeClient>(
 
     protected open val client: T,
-    protected open val stationInfo: StationInfo
+    protected open val stationInfo: StationRuntimeInfo
 ) {
 
     /**

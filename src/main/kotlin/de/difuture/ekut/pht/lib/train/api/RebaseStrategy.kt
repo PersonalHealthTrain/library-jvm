@@ -1,8 +1,11 @@
 package de.difuture.ekut.pht.lib.train.api
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import de.difuture.ekut.pht.lib.data.TrainTag
+import de.difuture.ekut.pht.lib.internal.RebaseStrategyDeserializer
 
+@JsonDeserialize(using = RebaseStrategyDeserializer::class)
 sealed class RebaseStrategy : Typed
 
 data class DockerRebaseStrategy(
