@@ -10,7 +10,7 @@ import de.difuture.ekut.pht.lib.train.api.TrainDeparture
 import de.difuture.ekut.pht.lib.train.api.DepartureExecutor
 
 /**
- * A TrainStation is a client of the TrainAPI that consistently uses
+ * A Platform is a client of the TrainAPI that consistently uses
  * the provided [RuntimeClient]. Instances of this class hence serve as an entrypoint
  * for running commands on train arrivals or departures or to generate new departures from
  * arrivals
@@ -19,7 +19,7 @@ import de.difuture.ekut.pht.lib.train.api.DepartureExecutor
  * @since 0.1.7
  *
  */
-open class TrainStation<T : RuntimeClient>(
+open class Platform<T : RuntimeClient>(
 
     protected open val client: T,
     protected open val stationInfo: StationRuntimeInfo

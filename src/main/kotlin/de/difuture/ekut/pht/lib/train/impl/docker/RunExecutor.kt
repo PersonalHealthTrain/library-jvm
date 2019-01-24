@@ -5,7 +5,7 @@ import de.difuture.ekut.pht.lib.train.api.RunResponse
 import de.difuture.ekut.pht.lib.train.api.StationRuntimeInfo
 import de.difuture.ekut.pht.lib.train.api.TrainCommand
 
-object CheckRequirementsExecutor
+object RunExecutor
     : DockerArrivalExecutor<RunResponse> {
 
     override val command = TrainCommand.RUN
