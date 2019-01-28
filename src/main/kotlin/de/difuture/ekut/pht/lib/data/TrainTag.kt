@@ -15,15 +15,12 @@ import jdregistry.client.data.Tag as DockerTag
  */
 @JsonSerialize(using = TrainTagSerializer::class)
 @JsonDeserialize(using = TrainTagDeserializer::class)
-interface TrainTag {
+sealed class TrainTag(open val repr: String)
 
-    val repr: String
-}
+fun String.toTrainTag(): TrainTag = PrivateTrainTag(this)
 
-fun String.toTrainTag(): TrainTag = object : TrainTag {
-    override val repr = this@toTrainTag
-}
+fun DockerTag.toTrainTag(): TrainTag = PrivateTrainTag(this.repr)
 
-fun DockerTag.toTrainTag(): TrainTag = object : TrainTag {
-    override val repr = this@toTrainTag.repr
-}
+private data class PrivateTrainTag(
+    override val repr: String
+) : TrainTag(repr)

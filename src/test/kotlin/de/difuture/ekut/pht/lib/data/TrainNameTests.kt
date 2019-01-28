@@ -41,4 +41,9 @@ class TrainNameTests {
                 assertFailsWith<IllegalArgumentException> { it.toTrainName() }
             }
         }
+
+    @Test
+    fun `== operator on TrainName works as expected`() {
+        assertEquals("train_foo".toTrainName(), "train_foo".toTrainName())
+    }
 }

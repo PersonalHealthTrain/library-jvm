@@ -18,21 +18,18 @@ import de.difuture.ekut.pht.lib.internal.TrainNameSerializer
  */
 @JsonSerialize(using = TrainNameSerializer::class)
 @JsonDeserialize(using = TrainNameDeserializer::class)
-interface TrainName {
+sealed class TrainName(open val repr: String)
 
-    /**
-     * The [String] representation of the Train Name
-     */
-    val repr: String
-}
-
-fun String.toTrainName(): TrainName {
-    require(isValidTrainName())
-    return object : TrainName {
-        override val repr = this@toTrainName
-    }
-}
+fun String.toTrainName(): TrainName = PrivateTrainName(this)
 
 fun String.isValidTrainName(): Boolean = matches(regex)
 
 private val regex = Regex("train_[a-zA-Z](?:[a-zA-Z0-9_-]*[a-z0-9])?")
+
+private data class PrivateTrainName(
+    override val repr: String
+) : TrainName(repr) {
+    init {
+        require(repr.isValidTrainName())
+    }
+}
