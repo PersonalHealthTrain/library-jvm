@@ -7,7 +7,4 @@ import java.net.URI
  *
  * @return <host>:<port> if port is defined for this [URI], otherwise return only the <host>
  */
-fun URI.hostWithPort(): String = port.let {
-
-    if (it == -1) host else "$host:$it"
-}
+fun URI.hostWithPort(): String = if (port == -1) host else "$host:$port"
