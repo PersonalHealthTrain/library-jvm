@@ -8,6 +8,7 @@ import de.difuture.ekut.pht.lib.train.api.TrainArrival
 import de.difuture.ekut.pht.lib.train.impl.docker.DockerRegistryTrainArrival
 import de.difuture.ekut.pht.lib.train.impl.docker.DockerRegistryTrainDeparture
 import de.difuture.ekut.pht.lib.train.registry.api.TrainRegistryClient
+import de.difuture.ekut.pht.lib.utils.hostWithPort
 import jdregistry.client.api.DockerRegistryGetClient
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
 import jdregistry.client.data.Tag as DockerTag
@@ -51,7 +52,7 @@ class DefaultTrainRegistryClient(
 
                     listTags(repo).tags.orEmpty().map { tag ->
 
-                        DockerRegistryTrainArrival(uri.host, repo, tag)
+                        DockerRegistryTrainArrival(uri.hostWithPort(), repo, tag)
                     }
                 }
                 // At last, apply the filter from the predicate
