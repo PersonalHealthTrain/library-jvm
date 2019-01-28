@@ -115,8 +115,8 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
         baseClient.logs(containerId.repr, DockerClient.LogsParam.stderr()).readFully()
 
     override fun pull(
-        repo: jdregistry.client.data.RepositoryName,
-        tag: jdregistry.client.data.Tag,
+        repo: DockerRepositoryName,
+        tag: DockerTag,
         host: String?
     ): DockerImageId {
         val repoTag = repo.resolve(tag, host)
@@ -125,7 +125,7 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
         } else {
             baseClient.pull(repoTag)
         }
-        return this.repoTagToImageId(repo.resolve(tag))
+        return this.repoTagToImageId(repo.resolve(tag, host))
     }
 
     override fun push(repo: DockerRepositoryName, tag: DockerTag, host: String?) {
