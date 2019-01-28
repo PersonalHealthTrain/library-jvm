@@ -43,6 +43,7 @@ enum class TrainCommand(val repr: String) {
             base.add("--user-data")
             base.add(info.userData)
         }
+        base.add(this.repr)
         return base
     }
 }

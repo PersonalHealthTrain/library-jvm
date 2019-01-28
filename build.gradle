@@ -17,7 +17,7 @@ plugins {
 }
 
 group 'de.difuture.ekut.pht'
-version '0.9.4'
+version '0.9.5'
 
 repositories {
     jcenter()
@@ -106,7 +106,7 @@ publishing {
 
 model {
     tasks.generatePomFileForMavenPublication {
-        destination = file("$buildDir/libs/lib-0.9.4.pom")
+        destination = file("$buildDir/libs/lib-0.9.5.pom")
     }
 }
 
