@@ -47,7 +47,8 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         }
 
         // 1. First, create a new container from the baseImage in which the files should be copied into
-        val targetContainerId = createContainer(repoTagToImageId(from, pull = true)).containerId
+        // currently, only pulling from Docker Hub is allowed
+        val targetContainerId = createContainer(repoTagToImageId(from, pullMode = PullMode.PUBLIC)).containerId
 
         // 2. Copy all the files from the source container into the target container
         for (path in exportFiles) {
@@ -66,7 +67,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         // 4 Remove the created container
         stopAndRemoveContainer(targetContainerId)
         stopAndRemoveContainer(containerId)
-        return this.repoTagToImageId(targetRepo.resolve(targetTag), pull = false)
+        return this.repoTagToImageId(targetRepo.resolve(targetTag), pullMode = PullMode.NO_PULL)
     }
 
     override fun run(
@@ -120,12 +121,8 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
             creation.warnings)
     }
 
-    override fun pull(
-        repo: DockerRepositoryName,
-        tag: DockerTag,
-        host: String?
-    ): DockerImageId =
-            this.repoTagToImageId(repo.resolve(tag, host), pull = true)
+    override fun pull(repo: DockerRepositoryName, tag: DockerTag, host: String?): DockerImageId =
+            this.repoTagToImageId(repo.resolve(tag, host), pullMode = PullMode.AUTH)
 
     abstract fun createContainer(
         imageId: DockerImageId,
@@ -134,7 +131,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         network: DockerNetworkReference? = null
     ): DockerContainerCreation
 
-    abstract fun repoTagToImageId(repoTag: String, pull: Boolean): DockerImageId
+    abstract fun repoTagToImageId(repoTag: String, pullMode: PullMode): DockerImageId
 
     abstract fun startContainer(containerId: DockerContainerId)
 
@@ -153,4 +150,10 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
     abstract fun getStdout(containerId: DockerContainerId): String
 
     abstract fun getStderr(containerId: DockerContainerId): String
+
+    enum class PullMode {
+        NO_PULL,
+        PUBLIC,
+        AUTH
+    }
 }

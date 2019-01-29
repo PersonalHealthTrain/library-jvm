@@ -61,11 +61,21 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
 
     override fun repoTagToImageId(
         repoTag: String,
-        pull: Boolean
+        pullMode: PullMode
     ): DockerImageId {
-        if (pull) {
-            pullByRepoTag(repoTag)
+
+        // Pull depening on the Pull Mode
+        when (pullMode) {
+            PullMode.AUTH -> if (auth != null) {
+                baseClient.pull(repoTag, auth)
+            } else {
+                baseClient.pull(repoTag)
+            }
+            PullMode.PUBLIC ->
+                baseClient.pull(repoTag)
+            else -> {}
         }
+
         val images = baseClient.listImages().filter {
 
             val repoTags = it.repoTags()
@@ -116,14 +126,6 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
 
     override fun getStderr(containerId: DockerContainerId): String =
         baseClient.logs(containerId.repr, DockerClient.LogsParam.stderr()).readFully()
-
-    private fun pullByRepoTag(repoTag: String) {
-        if (auth != null) {
-            baseClient.pull(repoTag, auth)
-        } else {
-            baseClient.pull(repoTag)
-        }
-    }
 
     override fun push(repo: DockerRepositoryName, tag: DockerTag, host: String?) {
         val repoTag = repo.resolve(tag, host)
