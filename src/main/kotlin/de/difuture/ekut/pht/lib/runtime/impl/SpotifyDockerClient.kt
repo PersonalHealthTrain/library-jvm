@@ -10,7 +10,6 @@ import dockerdaemon.data.DockerContainerId
 import dockerdaemon.data.DockerImageId
 import dockerdaemon.data.DockerNetworkReference
 import kotlinext.map.asKeyValueList
-import java.io.InputStream
 import java.nio.file.Path
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
 import jdregistry.client.data.Tag as DockerTag
