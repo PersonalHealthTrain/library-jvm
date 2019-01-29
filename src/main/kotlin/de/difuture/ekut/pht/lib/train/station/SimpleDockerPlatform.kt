@@ -12,9 +12,9 @@ import java.nio.file.Paths
 
 class SimpleDockerPlatform(
 
-    override val client: DockerRuntimeClient,
-    override val stationInfo: StationRuntimeInfo
-) : Platform<DockerRuntimeClient>(client, stationInfo) {
+    private val client: DockerRuntimeClient,
+    private val stationInfo: StationRuntimeInfo
+) {
 
     fun departWithAlgorithm(arrival: DockerRegistryTrainArrival): DockerRegistryTrainDeparture {
 

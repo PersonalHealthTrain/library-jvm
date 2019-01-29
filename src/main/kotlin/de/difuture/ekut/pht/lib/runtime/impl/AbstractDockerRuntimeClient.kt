@@ -47,7 +47,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         }
 
         // 1. First, create a new container from the baseImage in which the files should be copied into
-        val targetContainerId = createContainer(repoTagToImageId(from)).containerId
+        val targetContainerId = createContainer(repoTagToImageId(from, pull = true)).containerId
 
         // 2. Copy all the files from the source container into the target container
         for (path in exportFiles) {
@@ -66,7 +66,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         // 4 Remove the created container
         stopAndRemoveContainer(targetContainerId)
         stopAndRemoveContainer(containerId)
-        return this.repoTagToImageId(targetRepo.resolve(targetTag))
+        return this.repoTagToImageId(targetRepo.resolve(targetTag), pull = false)
     }
 
     override fun run(
@@ -120,6 +120,13 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
             creation.warnings)
     }
 
+    override fun pull(
+        repo: DockerRepositoryName,
+        tag: DockerTag,
+        host: String?
+    ): DockerImageId =
+            this.repoTagToImageId(repo.resolve(tag, host), pull = true)
+
     abstract fun createContainer(
         imageId: DockerImageId,
         commands: List<String>? = null,
@@ -127,7 +134,7 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
         network: DockerNetworkReference? = null
     ): DockerContainerCreation
 
-    abstract fun repoTagToImageId(repoTag: String): DockerImageId
+    abstract fun repoTagToImageId(repoTag: String, pull: Boolean): DockerImageId
 
     abstract fun startContainer(containerId: DockerContainerId)
 
