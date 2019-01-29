@@ -8,6 +8,7 @@ import de.difuture.ekut.pht.lib.train.api.TrainCommand
 import de.difuture.ekut.pht.lib.train.api.TrainOutput
 import de.difuture.ekut.pht.lib.train.api.TrainResponse
 import dockerdaemon.data.DockerContainerOutput
+import kotlinext.string.maybeTrailingJson
 import java.lang.Exception
 
 /**
@@ -20,14 +21,12 @@ import java.lang.Exception
 private inline fun <reified T : TrainResponse> toTrainOutput(
     output: DockerContainerOutput
 ): TrainOutput.DockerTrainOutput<T> {
-
     // Tries to read the TrainResponse from the Container Output. Any Exception will result
     // in a null response. The error String will be the message of the thrown exception
+    // The Train API specification tells us that we need to parse the Trailing Json as a Train Response
     val (response, error) = try {
-
-        Pair<T, String?>(jacksonObjectMapper().readValue(output.stdout), null)
+        Pair<T, String?>(jacksonObjectMapper().readValue(output.stdout.maybeTrailingJson()), null)
     } catch (e: Exception) {
-
         Pair<T?, String>(null, e.message.orEmpty())
     }
     return TrainOutput.DockerTrainOutput(response, error, output)

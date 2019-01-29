@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * Container class for responses that are produced by a train.
  *
  */
+// TODO Train Description is currently not supported
 sealed class TrainResponse
 
 data class RunResponse(
@@ -42,42 +43,3 @@ data class RunResponse(
         }
     }
 }
-
-//{
-//    "properties": [
-//    {
-//        "id": 1,
-//        "data": {
-//        "target": "http://schema.org/URL",
-//        "name": "FOO",
-//        "check": false,
-//        "type": "http://www.wikidata.org/entity/Q400857",
-//        "display": "environmentVariable"
-//    }
-//    }
-//    ],
-//    "formula": [
-//    {
-//        "id": 1,
-//        "data": {
-//        "value": [
-//        [
-//            1
-//        ]
-//        ],
-//        "type": "https://www.wikidata.org/wiki/Q846564",
-//        "display": "ConjunctiveNormalForm"
-//    }
-//    }
-//    ],
-//    "model": {
-//    "summary": "foo"
-//},
-//    "algorithm": {
-//    "requirement": {
-//    "value": 1,
-//    "type": "FormulaAlgorithmRequirement",
-//    "display": "FormulaAlgorithmRequirement"
-//}
-//}
-//}

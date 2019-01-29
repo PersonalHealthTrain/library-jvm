@@ -17,7 +17,7 @@ plugins {
 }
 
 group 'de.difuture.ekut.pht'
-version '0.9.5'
+version '0.9.6'
 
 repositories {
     jcenter()
@@ -41,7 +41,7 @@ dependencies {
     implementation group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.8'
 
     // Extension functions for Kotlin stdlib classes
-    implementation group: 'kotlinext', name: 'string', version: '4.0'
+    implementation group: 'kotlinext', name: 'string', version: '5.0'
     implementation group: 'kotlinext', name: 'map', version: '1.0'
 
     // The Data classes for the Docker Daemon
@@ -106,7 +106,7 @@ publishing {
 
 model {
     tasks.generatePomFileForMavenPublication {
-        destination = file("$buildDir/libs/lib-0.9.5.pom")
+        destination = file("$buildDir/libs/lib-0.9.6.pom")
     }
 }
 
