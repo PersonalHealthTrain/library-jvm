@@ -7,7 +7,6 @@ import dockerdaemon.data.DockerContainerId
 import dockerdaemon.data.DockerContainerOutput
 import dockerdaemon.data.DockerImageId
 import dockerdaemon.data.DockerNetworkReference
-import java.io.InputStream
 import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import jdregistry.client.data.RepositoryName as DockerRepositoryName
@@ -52,22 +51,16 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
 
         // 2. Copy all the files from the source container into the target container
         for (path in exportFiles) {
-
-            copyFileFromContainer(containerId, path).use { inputStream ->
-                copyFileToContainer(inputStream, targetContainerId, path)
-            }
+            containerCopyFile(path, from = containerId, to = targetContainerId)
         }
 
         // 3. Create the new image from the container
-        commitContainer(
-                containerId,
-                targetRepo,
-                targetTag)
+        commitContainer(containerId, targetRepo, targetTag)
 
-        // 4 Remove the created container
+        // 4 Remove the created containers
         stopAndRemoveContainer(targetContainerId)
         stopAndRemoveContainer(containerId)
-        return this.repoTagToImageId(targetRepo.resolve(targetTag), pullMode = PullMode.NO_PULL)
+        return repoTagToImageId(targetRepo.resolve(targetTag), pullMode = PullMode.NO_PULL)
     }
 
     override fun run(
@@ -135,9 +128,11 @@ abstract class AbstractDockerRuntimeClient : DockerRuntimeClient {
 
     abstract fun startContainer(containerId: DockerContainerId)
 
-    abstract fun copyFileFromContainer(containerId: DockerContainerId, path: Path): InputStream
-
-    abstract fun copyFileToContainer(input: InputStream, containerId: DockerContainerId, path: Path)
+    /**
+     * Copies a file via path from the 'from' container to the 'to' container.
+     * Path must refer to an regular file
+     */
+    abstract fun containerCopyFile(path: Path, from: DockerContainerId, to: DockerContainerId)
 
     abstract fun commitContainer(containerId: DockerContainerId, targetRepo: DockerRepositoryName, targetTag: DockerTag)
 
