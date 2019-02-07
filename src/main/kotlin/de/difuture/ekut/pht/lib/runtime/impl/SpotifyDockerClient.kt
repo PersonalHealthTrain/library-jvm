@@ -89,14 +89,17 @@ class SpotifyDockerClient : AbstractDockerRuntimeClient() {
     }
 
     override fun containerCopyFile(path: Path, from: DockerContainerId, to: DockerContainerId) {
-        val file = path.toString()
+        val file = path.toFile()
         require(path.isAbsolute) {
             "Input Path $file is not absolute"
         }
-        val parent = path.parent.toString()
-        baseClient.archiveContainer(from.repr, file).use {
+        val parent = file.parentFile.absolutePath
+        baseClient.archiveContainer(from.repr, file.absolutePath).use {
             baseClient.copyToContainer(it, to.repr, parent)
         }
+//
+//        baseClient.archiveContainer(containerId.repr, file.absolutePath).use { inputStream ->
+//            baseClient.copyToContainer(inputStream, targetContainerId, file.parentFile.absolutePath)
     }
 
     override fun commitContainer(
